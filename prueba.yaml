@@ -1,0 +1,181 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /transaction-p2m/execute:
+    post:
+      tags:
+      - api-rest
+      summary: transferencia para le modelo orquestacion de terceros
+      operationId: POST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Root'
+        required: true
+      responses:
+        "400":
+          description: Bad request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Errors'
+        "503":
+          description: Service not available
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Errors'
+        "409":
+          description: Business conflict
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Errors'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Errors'
+        "200":
+          description: Success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Ok'
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+components:
+  schemas:
+    Ok:
+      type: object
+      properties:
+        trackin:
+          type: string
+    Errors:
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                example: "5f2d287a-3a3f-11e7-a919-92ebcb67fe33"
+              href:
+                type: string
+                example: "https://tools.ietf.org/al inhtml/rfc7231#section-6.5.4"
+              status:
+                type: string
+                example: "400"
+              code:
+                type: string
+                example: "QR-B0001"
+              requestDate:
+                type: string
+                example: "2017-01-24T05:00:00.000Z"
+              title:
+                type: string
+                example: "Field required"
+              detail:
+                type: string
+                example: "List commerceAccounts required"
+    DestinationInfo:
+      required:
+      - imageQR
+      type: object
+      properties:
+        imageQR:
+          type: string
+          description: Imagen del QR
+    PayerInfo:
+      required:
+      - documentType
+      - fullName
+      - typeAccount
+      type: object
+      properties:
+        fullName:
+          maxLength: 100
+          minLength: 1
+          type: string
+          description: Nombre del pagador
+          example: Monica Acevedo Fuentes
+        documentNumber:
+          pattern: "[0-9]+"
+          type: string
+          description: "Numero de documento pagador, no debe contener caracteres especiales,\
+            \ ni letras"
+          example: "1020123455"
+        documentType:
+          maxLength: 15
+          minLength: 1
+          type: string
+          description: Tipo de documento del pagador
+          example: TIPDOC_FS001
+        typeAccount:
+          maxLength: 20
+          minLength: 1
+          type: string
+          description: Tipo de cuenta del pagador
+          example: CUENTA_DE_AHORROS
+        numberAccount:
+          pattern: "[0-9]+"
+          type: string
+          description: "Cuenta del pagador, no debe contener caracteres especiales,\
+            \ ni letras"
+          example: "85568547854"
+        payerReference:
+          type: string
+          description: Referencia del pagador
+          example: HIX376 56550a4d-7c57-4c6b-8797-a2a7fef441ac
+    Root:
+      type: object
+      properties:
+        transaction_info:
+          $ref: '#/components/schemas/TransactionInfo'
+        payer_info:
+          $ref: '#/components/schemas/PayerInfo'
+        destination_info:
+          $ref: '#/components/schemas/DestinationInfo'
+    TransactionInfo:
+      required:
+      - amount
+      - dateTime
+      - originChannel
+      - productIndicator
+      - trackingId
+      type: object
+      properties:
+        amount:
+          type: number
+          description: Monto de la transaccion
+          format: double
+          example: 3500.0
+        originChannel:
+          type: string
+          description: "Canal origen, se ingresan las siglas del canal"
+          example: APP
+        topOperationCode:
+          type: string
+          description: "Tope canal, codigo para validar el tope"
+          example: "0530"
+        dateTime:
+          type: string
+          description: Fecha de la transaccion
+          example: 2023-09-26T10:55:51
+        trackingId:
+          type: string
+          maxLength: 12
+          description: Traking Id de la transaccion
+          example: QR270109139
